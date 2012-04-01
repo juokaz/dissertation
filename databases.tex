@@ -7,6 +7,27 @@ It's very unusual for a modern web application to be running without a database 
 
 \section{Databases in Links}
 
+Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
+
+\begin{codelisting}
+\begin{verbatim}
+var db = database "blog"; 
+
+var posts = table "posts" with ( 
+    id: Int, 
+    title: String, 
+    summary: String, 
+    text: String 
+) from db;
+\end{verbatim}
+\end{codelisting}
+
+sacscaasc
+
+Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
+
+Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
+
 \section{Handling databases in modern frameworks}
 
 \subsection{Ruby}

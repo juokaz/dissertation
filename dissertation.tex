@@ -59,6 +59,14 @@
 %% an example:
 \usepackage{natbib}
 
+\newenvironment{codelisting}
+{\begin{list}{}{\setlength{\leftmargin}{1em}}\item\scriptsize\bfseries}
+{\end{list}}
+
+\newenvironment{codetinylisting}
+{\begin{list}{}{\setlength{\leftmargin}{1em}}\item\tiny\bfseries}
+{\end{list}}
+
 %% Information about the title, etc.
 \title{Cutting-Edge Web: Building Web 2.0 Applications In Links}
 \author{Juozas Kaziukenas}
