@@ -1,0 +1,26 @@
+%% Sample chapter file, for use in a thesis.
+%% Don't forget to put the \chapter{...} header onto each file.
+
+\chapter{Databases}
+
+It's very unusual for a modern web application to be running without a database – unless they work as computation APIs, with which you can query for a specific result which is then computed on-a-fly, web applications read data from a certain data-store and represent that in a human, or machine, readable way.
+
+\section{Databases in Links}
+
+\section{Handling databases in modern frameworks}
+
+\subsection{Ruby}
+
+\subsection{PHP}
+
+\section{Shortcomings of ORMs}
+
+\section{Shortcomings of Links}
+
+Even though databases and tables are defined in an abstract way, which looks really similar to how ORMs would define them, however it's only a one-way definition. Thus meaning that data can be read from a database and mapped to language types, but those definitions cannot be used to manage the database structure itself. This is something which makes it more likely to be prone to errors when a certain database is out of sync with the application definitions for it. Developer is hence required to make sure that every time he changes the database or application, he updates the other one. Theoretically this is not a big problem, however practically, with development team bigger than one developer and with multiple servers being used for development and production, it can become tricky to manage this. 
+
+\section{Slow-SQL generation}
+
+\section{No-SQL databases}
+
+\section{Links improvements}
