@@ -15,9 +15,9 @@ check() {
 
     	chsum1=`ls -l | grep .tex | sha1sum | awk '{print $1}'`
 
-	    latex dissertation.tex > /dev/null
-		dvips dissertation > /dev/null
-		ps2pdf dissertation.ps > /dev/null
+	    latex dissertation.tex
+		dvips dissertation
+		ps2pdf dissertation.ps
 	done
 }
 
