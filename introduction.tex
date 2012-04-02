@@ -3,16 +3,58 @@
 
 \chapter{Introduction}
 
-First you have to get some dead tissue (the knack here is in also managing to
-avoid a short custodial sentence for grave-robbing). Then you need one of
-those crackling things which makes lots of sparks. The work must also be
-conducted in a suitable dark and ancient castle, in close proximity to a town
-of highly suspicious and pitchfork-wielding peasants.
-
-\section{Cutting-edge web applications}
+\section{Cutting-edge Web 2.0 applications}
 
 \section{Existing frameworks and languages}
 
+Links is obviously not the only platform to create web applications, currently PHP, Ruby and Python are all highly popular. Java and .Net solutions are more popular in enterprise segment and they tend to solve problems in a different way, thus they are not going to be included in this report. Out of PHP, Ruby and Python, I chose to focus on two: PHP and Ruby. Python and Ruby are quite similar, both in terms of a language and what they offer in frameworks, thus I chose the more popular, Ruby. PHP is by far the most popular language when it comes to creating websites[], thus it couldn't not have been included in this report. 
+
+PHP has a somewhat interesting story about how it became so popular. It is a dynamic language, with a syntax mixed from both Perl and C, however lacking a clear structure in syntax and development practices. It's not uncommon for developers to rate it as one of the worst languages out there[], however in 15 years of existence it rose to become the backbone of web. The reason for that is how quickly it is to learn, create a website and have it running deployed locally or on a server. That brought a lot of young developers, which then later moved to other languages or stayed with PHP. 
+
+Some of the world's biggest websites are run powered by PHP[]. In my belief, Links is trying to solve a similar problem which is so great about starting with PHP - starting from zero and having a website running in the shortest amount of time possible. PHP solves this by having a language which is easy to develop in, doesn't take much effort to deploy and see it running, while Links aims for more of an integrated development environment, bringing all three tiers[] under one language. Roughly 5 years ago, frameworks started rising in PHP, making some of the web-specific functionality even easier, because even though PHP is mainly used for websites it is still a generic language. Thus including quite a few of Links-like behaviours. 
+
+Ruby is also an old language, used heavily for scripting, however it rose as web-ready one, mainly because of Ruby On Rails[] framework. After RoR, short for Ruby on Rails, a few other smaller frameworks were created, however the spirit of RoR is still seen in them - creating websites in the less amount of code possible and providing simple solutions to hard problems. Sometimes that created scalability issues[], however for anything not as big as world scale applications, Ruby solutions worked great. One of the common things in Ruby community is videos like "How to create a blog application in 15 minutes"[], showing off the speed of scaffolding and code generation-powered tools. 
+
+Both Ruby and PHP are really different languages from Links, thus the analysis of them and how that affects development of web applications, is included in one of the sections of this report. 
+
 \section{Web and REST}
+
+Big part of modern applications' requirements is how RESTful they are. REST[], REpresentational State Transfer, was defined in 2000 by Roy Fielding, as a style of application architecture bound by these constraints:
+
+\begin{description}
+  \item[Client–server] A uniform interface separates clients from servers, clients are not concerned with data storage and servers are not concerned with the user interface or user state, so that servers can be simpler and more scalable
+  \item[Stateless] No client context is being stored on the server between requests. Each request from any client contains all of the information necessary to service the request, and any session state is held in the client
+  \item[Cacheable] Clients can cache responses. Responses must therefore, implicitly or explicitly, define themselves as cacheable, or not, to prevent clients reusing stale or inappropriate data in response to further requests
+  \item[Layered system] A client cannot ordinarily tell whether it is connected directly to the end server, or to an intermediary along the way
+  \item[Code on demand (optional)] Servers are able temporarily to extend or customize the functionality of a client by the transfer of executable code
+  \item[Uniform interface] The uniform interface between clients and servers simplifies and decouples the architecture, which enables each part to evolve independently
+\end{description}
+
+When a web application is called RESTful, it has a certain amount of resources, all identified by a global identifier, which can be manipulated over a standardized interface, and exchange representations of them in a format accepted by a client, assuming there exists one. Even though REST style doesn't define this as being HTTP-only, for our purposes, let's assume that all definitions below, are related to HTTP, the protocol web applications talk in. Web application resources would be identified by their URIs, the interface allowing to manipulate them is obviously HTTP and representations would come as different text types.
+
+It thus expected that an interface would behave like this:
+
+\begin{codelisting}
+\begin{verbatim}
+$ curl -H "Accept: application/json" -X POST -d "name=iphone&title=Iphone5" http://localhost/products
+{'name':'Iphone5', 'location': 'http://localhost/products/iphone'}
+
+$ curl -H "Accept:application/html" http://localhost/products/iphone
+<html><body>Iphone5</body></html>
+
+$ curl -H "Accept:application/xml" http://localhost/products/iphone
+<product><name>Iphone5</name></product>
+
+$ curl -H "Accept:application/json" http://localhost/products/iphone
+{'name':'Iphone5'}
+
+$ curl -H "Accept:text/plain"localhost/products/iphone
+Iphone5
+\end{verbatim}
+\end{codelisting}
+
+Even though a usual web application in most cases is just a website, thus it has only representation - HTML - I would expect a modern web application framework or a language to support RESTfullness, as it solves quite a lot of problems in current web state. First of all, it allows any website to become machine readable easily, just by exchanging a different representation, say XML, than the one returned to browsers. Second, the way it defines constrains for cacheability, statelessness and layered systems transparency, it makes web applications scale better, both in terms of development speed and ease and also performance. 
+
+Most importantly, I think Hypermedia[] is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
 
 \section{Report Aims}
