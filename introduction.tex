@@ -10,7 +10,7 @@ Best example of a web application allowing collaboration is forum software. A fo
 
 Interactions started rising with first introduction of commenting systems and later with websites allowing to contribute to content. Allowing users to comment on certain parts of ones website, being a news article or a product, allowed users to leave notes, comments or feedback, which then can be read by others, thus creating richer content, extending it further than what original author has planned, and most important - allowing users to contribute content. Later this content contribution started growing new ideas and WikiPedia was born[]. Currently one of the biggest websites in the whole world, while all content, website itself and platform is being created and maintained by volunteers. 
 
-This was a paradigm shift in semantics of web, this report doesn't focus on that much, however Web 2.0 also "introduced" or in other words started pushing towards rich user interfaces. Rather than a website being a static page, which has links and forms linking to other pages, developers started to look for ways to make web applications behave closer to desktop applications. Which were always more responsive and functional that websites. AJAX was created - Asynchronous Javascript and XML, a collective group of technologies which utilise Javascript client-side and XmlHttpRequest (XHR) API to establish asynchronous connections to a server-side application. 
+This was a paradigm shift in semantics of web, this report doesn't focus on that much, however Web 2.0 also "introduced" or in other words started pushing towards rich user interfaces. Rather than a website being a static page, which has links and forms linking to other pages, developers started to look for ways to make web applications behave closer to desktop applications. Which were always more responsive and functional that websites. AJAX was created - Asynchronous JavaScript and XML, a collective group of technologies which utilise JavaScript client-side and XmlHttpRequest (XHR) API to establish asynchronous connections to a server-side application. 
 
 AJAX allows applications to fetch more data whenever a client site JavaScript application decides to, without a user issuing this action. This allows to update certain parts of pages without refreshing the whole application, hence a web mail application can be constantly updating Inbox's list of messages rather than user having to refresh the page to know if he got any more mail. Taken further, applications like Google Maps[] could be built, allowing to interact with a dataset bigger than would normally be consumed a user, by loading only the parts of map which are required to be visible. But since they are loaded asynchronously, with a fast-enough broadband connection, user could zoom in to a map and immediately get a higher detail map.
 
@@ -67,3 +67,20 @@ Even though a usual web application in most cases is just a website, thus it has
 Most importantly, I think Hypermedia[] is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
 
 \section{Report Aims}
+
+This report evaluates Links against to other languages, PHP and Ruby, to asses how usable it is for creating modern web applications. When Links is not capable of doing a certain task, it is evaluated on how difficult and challenging it would be to implement that, assuming that inclusion would be relevant to the goals Links is trying to achieve. With some of the ideas briefly explained above, a list of topics to be analysed in is this:
+
+\begin{description}
+  \item[Comparing environments] \hfill \\
+  Analysis of how Links, Ruby and PHP handle web applications both in terms of language constructs like type systems and also in terms of web-specific functions like forms
+  \item[REST] \hfill \\
+  Constrains of REpresentational State Transfer applied to Links applications
+  \item[Databases] \hfill \\
+  Analysis of how Links, Ruby and PHP handle databases and how they help or don't with certain tasks like database schema management
+  \item[Templating] \hfill \\
+  Analysis of how Links, Ruby and PHP handle HTML creation and layered templating
+  \item[Deployment] \hfill \\
+  Deployment process of Links, Ruby and PHP
+\end{description}
+
+To come to conclusions and comparisons, a few applications were developed to showcase a certain list of functionality, the key one being a blog application, developed in all three languages. This application allows to compare how different languages approach same or similar problems and evaluate which one is subjectively better. 
