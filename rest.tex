@@ -48,8 +48,62 @@ Although the biggest shortcoming of Links is that it doesn't produce determinist
 
 \section{Hypermedia}
 
+Part of support Hypermedia and thus HATEOAS[] is being able to handle different response representation types depending on what user is requesting for. When an application has this, any resource can be accessed by a human user and machine reading software just by using different representations. The important fact here is that resources should always stay the same and only their representations should differ, thus application can evolve and gain various other advantages[]. To support this behaviour, a modified Sintara example would look this (\textit{nakogiri} is a Ruby library which handles Xml parsing and generation, for purposes of this report it is not important how it behaves):
+
+\begin{codelisting}
+\begin{verbatim}
+get '/products/:id*' do
+  data = { :id => params[:id] }
+
+  request.accept.each do |type|
+    case type
+    when 'text/html'
+      halt erb "<h1>#{data.id}</h1>"
+    when 'text/json'
+      halt data.to_json
+    when 'application/atom+xml'
+      halt nokogiri(:'index.atom', :locals => data)
+    when 'application/xml', 'text/xml'
+      halt nokogiri(:'index.xml', :locals => data)
+    when 'text/plain'
+      halt data.name
+    end
+  end
+  error 406
+end
+\end{verbatim}
+\end{codelisting}
+
+In this example same handler would retrieve the data from some data-store which is then displayed depending on what \textit{Accept} header was passed to an application. PHP would support this behaviour quite similarly, there is a global request variable called \textit{\$\_SERVER['HTTP\_ACCEPT']} which contains the same \textit{Accept} header as the one in Sinatra example. Types in example above include text, html, JSON and various Xml types. If a type is not found, \textit{HTTP Error 406 Not acceptable} is returned to indicate to a user, being a human or a machine, that the type he is requesting in is either not supported or he hasn't asked for a specific type. 
+
+Because of Links model of handling requests, this is also not supported. Although it would be easily supportable if a function invoked by a click would get passed request headers information, then it would be able to parse the \textit{Accept} header itself and generate different outputs depending on that. Links applications are completely not aware of HTTP environment they are being used in and also can't modify it in any way (for other functionality, to be able to add additional headers for example), this makes applications really limited in how they can behave, and in my belief is wrong as it's abstraction HTTP so much to the point where key functionality is lost. 
+
 \section{Improving Links}
+
+As per report goals, Links cannot be used for RESTful applications, which is a big drawback given that most of other languages support this. Even though the changes required to support this would be core language changes, I think this is necessary to make the language ready for modern applications. 
 
 \subsection{URL generation}
 
-\subsection{State control}
+The goal of this modification is to gain functionality of being able to modify URLs Links generates for server-side function calls. It could still generate encrypted URLs for functions which do not explicitly define the URL format, but for those who do, it should use that as a template. A template should have as much parameters as function definition, so it could be type-checked and also URLs generated from it. For example, a proposed syntax would look like this:
+
+\begin{codelisting}
+\begin{verbatim}
+# Current syntax
+fun lookupUserID(username) server {
+    for (user <- users)
+    where (user.name = username)
+      [user.id]
+  }
+# lookupUserId('juozas') -> blog.links?\_k=BAH7BgH6BgQBxgwBxQwCAgJpZAAAAwYxY=
+
+# Proposed syntax
+fun lookupUserID(username) server('/users/:username') {
+    for (user <- users)
+    where (user.name = username)
+      [user.id]
+  }
+# lookupUserId('juozas') -> /users/juozas
+\end{verbatim}
+\end{codelisting}
+
+\subsection{Request access}
