@@ -1,21 +1,52 @@
-%% Sample chapter file, for use in a thesis.
-%% Don't forget to put the \chapter{...} header onto each file.
-
 \chapter{REST}
-
-First you have to get some dead tissue (the knack here is in also managing to
-avoid a short custodial sentence for grave-robbing). Then you need one of
-those crackling things which makes lots of sparks. The work must also be
-conducted in a suitable dark and ancient castle, in close proximity to a town
-of highly suspicious and pitchfork-wielding peasants.
 
 \section{What is REST}
 
 \section{URL structures}
 
-\section{State-fullness of Links}
+Even though this is not a requirement of REST style, which allows any URLs as long as they are Unique IDentifiers (UIDs), usually RESTful web applications expose resources in a manner which is easy for humans to understand. This is achieved by creating an \textit{illusion} that there is a folder structure in the application, which can be navigated upwards or downwards to retrieve parent/child elements. Obviously they are rarely real folders and files, but all requests are caught by a web server and passed to a handling script, which would then parse them and figure out how to handle it. An example structure might look like this:
 
-\subsection{Continuous requests (global state)}
+\begin{description}
+  \item[/products] \hfill \\
+  \textbf{GET}     - List of products \\
+  \textbf{POST}    - Create a product
+  \item[/products/iphone] \hfill \\
+  \textbf{GET}     - Product resource \\
+  \textbf{PUT}     - Update a product \\
+  \textbf{DELETE}  - Delete a product
+  \item[/products/iphone/accessories] \hfill \\
+  \textbf{GET}     - List of accessories for a product iphone \\
+  \textbf{POST}    - Create an accessory for a product iphone
+  \item[etc \ldots]
+\end{description}
+
+To support this, different framework handle this differently. MVC architecture would have a routing component which maps a list of routes like above to specific controllers' actions. Actions themselves would handle different HTTP verbs or this would be part of route definition. Sintara framework, similarly to a lot of small web frameworks, solves this problem by directly matching a route and verb combo to a certain handler, which is called assuming that combo is satisfied. Example below shows a Sintara application blueprint which internally just modifies Sinatra's routing list to add new string routes to match against:
+
+\begin{codelisting}
+\begin{verbatim}
+get '/products/:id*' do
+   "Iphone"
+end
+
+post '/products/:id*' do
+   id = params[:id]
+   # Handle update
+end
+
+delete '/products/:id*' do
+   id = params[:id]
+   # Delete delete by id
+end
+\end{verbatim}
+\end{codelisting}
+
+This allows to create new resources really quickly and quite clearly indicates what requests it accepts. PHP as a language doesn't help with this in any way, because of the nature of it being just a script, where Ruby applications are small web-servers by themselves. In case of PHP, a web-server of choice must redirect all requests matching non-files (so images, CSS and JavaScripts can still be accessed) to one handler script which parses the passed route to decide a handler to execute. Most of PHP frameworks do this out of the box, usually by employing a routing mechanism described above and redirection of requests to a handling script is achieved by tools like \textit{mod\_rewrite}[] in Apache.
+
+Links, however, has no notion of this as it only allows to move between functions in a sense of a Links language level function and because of the fact that it needs to transfer application state to support that, even for simple things, it will generate URLs itself, which have no semantic meaning to a user. Also Links seem to only handle \textit{GET} and \textit{POST} verbs, but also a developer has no control of how they differentiate, only that for forms, they would post the data rather than passing that as part of query, which is not used as that would require encoding the state.
+
+Although the biggest shortcoming of Links is that it doesn't produce deterministic URLs. Every time application is recompiled Links changes the URLs unrecognisably as they appear to be encoded also including a timestamp or a random number, which changes. This makes it really hard for an application to be used for creating RESTful applications as it brakes quite a few of it's principles. Responses cannot be cached, as they might have links to other resources which might have changed their URLs because of recompilation, it would be hard to distribute the application between multiple servers since different versions of it, if compiled on different machines, would have different URLs, etc \ldots. At the end, human user cannot bookmark or share an URL to the application as it has unpredictable longevity. 
+
+\section{Hypermedia}
 
 \section{Improving Links}
 
