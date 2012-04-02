@@ -40,8 +40,100 @@ Databases functionality is one of the core features of Links language. It is imp
 
 Even though databases and tables are defined in an abstract way, which looks really similar to how ORMs would define them, however it's only a one-way definition. Thus meaning that data can be read from a database and mapped to language types, but those definitions cannot be used to manage the database structure itself. This is something which makes it more likely to be prone to errors when a certain database is out of sync with the application definitions for it. Developer is hence required to make sure that every time he changes the database or application, he updates the other one. Theoretically this is not a big problem, however practically, with development team bigger than one developer and with multiple servers being used for development and production, it can become tricky to manage this. 
 
-\section{Slow-SQL generation}
+\subsection{Slow-SQL generation}
 
-\section{No-SQL databases}
+Rather than allowing to construct a query, Links provides iteration mechanisms to fetch data from a database. Similarly to ORMs shortcomings, this is both potentially slow and developer friendly. The issue is best showcased by this piece of code, a query to fetch all comments written on the users' blog posts:
+
+\begin{codelisting}
+\begin{verbatim}
+var current_user = 1;
+var ov milestone =
+  for (var post <−− posts)
+    where (post.userid == current_user)
+      for (var comment <−− comments)
+        where (comment.postid == post.id)
+          [(user=comment.userid, text=comment.text)];
+\end{verbatim}
+\end{codelisting}
+
+This code would generate one SQL query to fetch all posts by a user and then as many queries to fetch comments as there are posts. This can be best described as lazy-loading[], however in this case it's high suboptimal. Performance hit, assuming there are only so many blog posts would not be noticeable, but if a user has 1000 blog posts then fetching comments would require 1001 queries, which is a substantial amount of number, resulting in bad performance of an application. It's surprising that Links doesn't analyse code further than one \textit{for} block, because by looking ahead and realizing that other \textit{for} generators are also reading from database tables', it would be able to create one SQL query by utilizing JOINs. 
+
+Developer is left with no other choice than to either change database structure by avoiding multiple-level generators, which is achieved by de-normalizing[] the data. However, this would return in higher database size and also would require more preparation upfront. Furthermore, if in a long run a performance problem surfaces, it's currently impossible to override a generated SQL query, thus Links is not suitable for applications with big amount of data or complicated data structures as those will make the application too slow to be production-ready.
+
+\section{NoSQL databases}
+
+Definition of NoSQL states that:
+
+\begin{quote}
+NoSQL is a broad class of database management systems that differ from the classic model of the relational database management system (RDBMS) in some significant ways, most important being they do not use SQL as their primary query language
+\end{quote}
+
+In practice these databases are usually key-value or document stores, allowing to store structured or unstructured data in collections (databases in RDBMS sense) and query it using various different ways, MapReduce for example. There is a big shift in web industry to move towards them as they tend to be faster and also scale better, which is usually a result of not having ACID[] compliance. Which might sound as a drawback, but developers and architects have realised that some of it can be implemented in application level code, while allowing database to be more easily distributed. 
+
+As described above, Links supports a list of RDBMS servers, however it has no support for NoSQL databases. Both PHP and Ruby, as most other languages, already have extensions for them, because the task for them is easier - they only provide connection help and querying mechanisms, not a language integration. However in a same way as relational databases are being handled in Links, NoSQL ones could be handled as well, as semantically NoSQL still store records in a table-like containers. The only problem is that quite a lot of NoSQL databases allow to store documents in unstructured way, meaning two or more documents in a same collection can be of completely different structure. 
+
+In dynamic languages, this is not a problem, as they can just create dynamic objects or arrays and have then contain whatever structure was fetched from a database, but this is a complication in Links. Support dynamic structures in a strict-typed language is not practical and would lose all the benefits Links provides, as explained before, thus I don't think supporting this would be a good idea. Nonetheless, supporting nested documents can be implemented by extending \textit{table} construct or introducing a new one, like such:
+
+\begin{codelisting}
+\begin{verbatim}
+var posts = collection "posts" 
+			  with (name : String, tags : [String], author: (name : String, surname : String)) from db;
+\end{verbatim}
+\end{codelisting}
+
+\subsection{MapReduce}
+
+Querying data efficiently is a problem and something developers spend quite a lot of time on, hence the above section about slow SQL generation. With highly distributed systems it's even more complicated, as an index might not exists yet thus requiring an ad-hoc query to be indexed first in each of the servers. MapReduce[] is a concept which allows to query data across any number of database server nodes efficiently, by defining a mapping function and a reduce function, which take a stream of data and emit some data based on their internal logic. Usually these functions are written in any language supported by that database system and compiled internally for indexing purposes.
+
+For example CouchDB[], one of the more popular NoSQL databases, supports JavaScript out of the box, so this is an example of a JavaScript map and reduce functions which calculates a number of documents having a certain tag, assuming a document is a structured object having a property called \textit{tags} which is an array of strings:
+
+\begin{codelisting}
+\begin{verbatim}
+// map function
+function (doc) { 
+  for(var i=0; i<doc.tags.length; i++)  {
+    emit(doc.tags[i], 1); 
+  }
+}
+
+// reduce function
+function (tag, counts) {
+  var sum=0; 
+  for(var i=0; i<counts.length; i++)  {
+     sum+=counts[i];
+  }
+  return sum; 
+}
+\end{verbatim}
+\end{codelisting}
+
+Underlying workings of MapReduce are not in a scope of this project, however I can see them easily implementable in Links. By defining map and reduce functions in Links language developer gains the advantages of syntax checking and typing, and delegates creation of database specific MapReduce creation to Links. For example, a potential implementation of querying using MapReduce in Links might look like this:
+
+\begin{codelisting}
+\begin{verbatim}
+# map function
+fun map_f(doc) {
+  for(tag <- doc.tags)
+    (tag, 1)
+}
+
+# reduce function
+fun reduce_f(tag, counts) {
+  var sum = sum(counts)
+  sum
+}
+
+# query operation
+for (d <-- documents)
+  map (map_f)
+  reduce (reduce_f)
+    [x]
+\end{verbatim}
+\end{codelisting}
+
+As seen, this really closely matches with how CouchDB would accept a MapReduce definition to be defined in JavaScript, thus adding support for this, given that Links already knows how to generate JavaScript code, is a feasible addition. Furthermore, even the current database \textit{query} construct is easily portable to NoSQL databases, as \textit{query} defines a predicate each row should return true with, thus it can also be translated into either a MapReduce job or an ad-hoc query if a certain NoSQL database supports that.
 
 \section{Links improvements}
+
+Query construct
+Database generation
