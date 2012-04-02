@@ -3,15 +3,24 @@
 
 \chapter{Comparing environments}
 
-First you have to get some dead tissue (the knack here is in also managing to
-avoid a short custodial sentence for grave-robbing). Then you need one of
-those crackling things which makes lots of sparks. The work must also be
-conducted in a suitable dark and ancient castle, in close proximity to a town
-of highly suspicious and pitchfork-wielding peasants.
-
 \section{Language architecture}
 
 \section{Requests handling}
+
+Links handles HTTP requests very differently from say Ruby or PHP - it makes a developer think as if HTTP was a stateful protocol. So rather than a link point to another script/handler, in Links a link would \textit{point} to a function call, which is parsed by Links parser and an actual URL is generated to support this functionality. The approach of links/forms being pointed to functions rather than external scripts resembles a desktop application, where one process handles state transfers. Here are 3 examples of anchor links in different languages:
+
+\begin{codelisting}
+\begin{verbatim}
+// Ruby (Sinatra)
+<a href="/posts/#{p.id}" class="entry-title" rel="bookmark">#{p.title}</a>
+// PHP
+<a href="/posts.php?id=<?php echo $p->id ?>" class="entry-title" rel="bookmark"><?php echo $p->title ?></a>
+// Links
+<a l:href="{showPost(id)}" class="entry-title" rel="bookmark">{stringToXml(title)}</a>
+\end{verbatim}
+\end{codelisting}
+
+In PHP and Ruby case, the URLs it points at will have to handle a new request coming in without knowing anything from a previous request, thus they are stateless, as HTTP was designed to be. Since Links' link points to a function, it can only execute a new request if it knows the function to be executed and it's params, which requires Links to generate an encoded URL in a form of \textit{'blog.links?\_k=BAH7BgH6BgQB4wsB 4gsAAAFz4wv7Bg=='}, where \textit{\_k} query parameter contains that information. Of course assuming that \textit{showPost()} is to be executed server side, as Links also allows functions to be executed client side just by annotating them with a \textit{client} keyword, which makes it generate JavaScript code for that function.
 
 \subsection{MVC}
 
