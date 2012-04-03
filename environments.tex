@@ -91,6 +91,22 @@ Links embeds state information within a page itself as an encoded serialized sta
 
 State information is only encoded using \textit{Base64} algorithm, which can be used to decode the string, modify the state information and after encoding it again use it to move to a created state. This is a security risk, as an attacker can reach any state of the application and potentially gain access to information which should not be accessible publicly. PHP and Ruby are not that hard to trick, because only session ID is stored in a client request and modifying that, if it's not part of a URL (which is a recommendation), is only possible with a middle-man attack. Encrypting the state information with an application hash, configured explicitly or generated automatically, would be more suitable.
 
+\begin{description}
+  \item[wine.links?\_cont=AtEUA7gOAAADATK5DgAAAwM4NDi6DgAAAwItMfoUAA==] \hfill \\
+  2 - wine ID \\
+  878 - cart ID \\
+  -1 - order ID (order doesn't exist yet)
+  \item[wine.links?\_cont=AtEUA7gOAAADAjEwuQ4AAAMDODQ4ug4AAAMCLTH6FAA=] \hfill \\
+  10 - wine ID \\
+  878 - cart ID \\
+  -1 order ID (order doesn't exist yet)
+  \item[wine.links?\_k=BAH7BgH6BgQBxRECrw4AAAMDODQ4sA4AAAMCLTHFEfsG] \hfill \\
+  878 - cart ID \\
+  -1 - order ID (order doesn't exist yet)
+\end{description}
+
+After a simple analysis using a Hex editor and \textit{Base64} decrypting, I was able to reverse engineer logic behind the wine store application provided as part of Links examples. Enough time to figure out how a function is chosen for a specific URL wasn't invested, although these hashes contain more information than extracted above, thus that has to be the way. Hex editor clearly showed the arguments passed to each function and quite easily I was able to modify a wine ID to produce a new URL which would allow me to add a new wine to my shopping cart. However changing cart ID was possible thus allowing to read/modify other people's carts.
+
 Even though there are problems with Links approach, it scales better for distributed systems. Because user's state is not stored server-side, but rather as part of a request, multiple instances of application in different physical machines should always be able to handle that request. Most PHP applications would start with sessions stored locally on a disk, but as soon as they need to handle more load thus get additional servers, they have to modify the application to store sessions in a shared instance, for example MemCache[]. Thus Links obeys share-nothing[] architecture from the start, while other languages in this report would need additional work to make them behave in a scalable way.
 
 \section{Forms}
