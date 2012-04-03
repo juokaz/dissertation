@@ -15,7 +15,11 @@ However strongly typed languages are not necessary ideal for the web. The proble
 
 \section{Language architecture}
 
-PHP and Ruby are both imperative object-oriented languages, with especially Ruby using objects for everything and even primitives like integers being objects, while Links is a functional language. 
+To start with, Links works differently than both Ruby and PHP in the most fundamental way. While these two are executed to result in some output or instantiate a process, Links works also as a code generator, generating JavaScript and SQL code from Links source-code. This is a feature, which PHP/Ruby have no comparable solution and thus is a major difference. Some of the database integration can be replicated by ORMs, as discussed in Databases section, but converting Links execution flows to JavaScript functions in no way cannot be achieved. This is a compiled level behaviour and even extensions of PHP/Ruby would not be able to do this as it would require a complete interception of the core. 
+
+PHP and Ruby are both imperative object-oriented languages, with especially Ruby using objects for everything and even primitives like integers being objects, while Links is a functional language. Thus coding style is hugely different, which then leads to different approach to most of the web programming problems. Because of the functional nature, as in analysed below in more detail, web application is constructed as a graph of function calls, removing the boundaries of HTTP, where other languages assume each request must start and end somewhere same (dispatcher).
+
+Because Links is a functional language, it doesn't have any global state, as part of the design, however sometimes a lack of it is extremely noticeable when migrating Ruby or PHP applications to Links. In PHP for example, one can always access state information by accessing \textit{\$\_SESSION} global array, same for request parameters which are accessible through \textit{\$\_GET} and \textit{\$\_POST}. While not necessary required to build an application, passing around various properties in a bigger application might become cumbersome and increase complexity. 
 
 \section{Requests handling}
 
