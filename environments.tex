@@ -7,7 +7,7 @@
 
 \section{Requests handling}
 
-Links handles HTTP requests very differently from say Ruby or PHP - it makes a developer think as if HTTP was a stateful protocol. So rather than a link point to another script/handler, in Links a link would \textit{point} to a function call, which is parsed by Links parser and an actual URL is generated to support this functionality. The approach of links/forms being pointed to functions rather than external scripts resembles a desktop application, where one process handles state transfers. Here are 3 examples of anchor links in different languages:
+Links handles HTTP requests very differently from say Ruby or PHP - it makes a developer think as if HTTP was a stateful protocol. So rather than a link point to another script or handler, in Links a link would \textit{point} to a function call, which is parsed by Links parser and an actual URL is generated to support this functionality. The approach of links or forms being pointed to functions rather than external scripts resembles a desktop application, where one process handles state transfers. Here are 3 examples of anchor links in different languages:
 
 \begin{codelisting}
 \begin{verbatim}
@@ -20,9 +20,54 @@ Links handles HTTP requests very differently from say Ruby or PHP - it makes a d
 \end{verbatim}
 \end{codelisting}
 
-In PHP and Ruby case, the URLs it points at will have to handle a new request coming in without knowing anything from a previous request, thus they are stateless, as HTTP was designed to be. Since Links' link points to a function, it can only execute a new request if it knows the function to be executed and it's params, which requires Links to generate an encoded URL in a form of \textit{'blog.links?\_k=BAH7BgH6BgQB4wsB 4gsAAAFz4wv7Bg=='}, where \textit{\_k} query parameter contains that information. Of course assuming that \textit{showPost()} is to be executed server side, as Links also allows functions to be executed client side just by annotating them with a \textit{client} keyword, which makes it generate JavaScript code for that function.
+In PHP and Ruby case, the URLs it points at will have to handle a new request coming in without knowing anything from a previous request, thus they are stateless, as HTTP was designed to be. Since Links' link points to a function, it can only execute a new request if it knows the function to be executed and it's arguments, which requires Links to generate an encoded URL in a form of \textit{'blog.links?\_k=BAH7BgH6BgQB4wsB 4gsAAAFz4wv7Bg=='}, where \textit{\_k} query parameter contains that information. Of course assuming that \textit{showPost()} is to be executed server side, as Links also allows functions to be executed client side just by annotating them with a \textit{client} keyword, which makes it generate JavaScript code for that function.
+
+To support these URLs, different framework handle matching differently. MVC architecture, described below, would have a routing component which maps a list of routes like above to specific controllers' actions. Actions themselves would handle different HTTP verbs or this would be part of route definition. Sintara framework, similarly to a lot of small web frameworks, solves this problem by directly matching a route and verb combo to a certain handler, which is called assuming that combo is satisfied. Example below shows a Sintara application blueprint which internally just modifies Sinatra's routing list to add new string routes to match against:
+
+\begin{codelisting}
+\begin{verbatim}
+get '/products/:id*' do
+   "Iphone"
+end
+
+post '/products/:id*' do
+   id = params[:id]
+   # Handle update
+end
+
+delete '/products/:id*' do
+   id = params[:id]
+   # Delete delete by id
+end
+\end{verbatim}
+\end{codelisting}
+
+This allows creating new resources really quickly and quite clearly indicates what requests it accepts. PHP as a language doesn't help with this in any way, because of the nature of it being just a script, where Ruby applications are small web-servers by themselves. In case of PHP, a web-server of choice must redirect all requests matching non-files (so images, CSS and JavaScripts can still be accessed) to one handler script which parses the passed route to decide a handler to execute. Most of PHP frameworks do this out of the box, usually by employing a routing mechanism described above and redirection of requests to a handling script is achieved by tools like \textit{mod\_rewrite}[] in Apache.
+
+In the end, differently from other languages, Links doesn't have a \textit{request --\textgreater  response} based model, which is especially visible in PHP, where a request would create a new instance of PHP process and whole script will be executed once for that request, thus completing the cycle. In Links, users move between states by clicking on links or submitting forms which in turn modify a state of application using the encoded information in query string. This makes it really easy to start creating applications as it doesn't require to understand that HTTP is stateless and execution flow is different from say Java desktop applications.
 
 \subsection{MVC}
+
+Most of modern web applications are written using MVC[], Model-View-Controller, architecture based frameworks. Even though they also come from desktop applications and don't really apply to web applications directly, developers managed to figure out a way to make them work. In most cases the architecture is like this:
+
+\begin{description}
+  \item[Model] \hfill \\
+  Part of application responsible for storing and retrieving data \\
+  \textbf{Calls}: nothing \\
+  \textbf{Called by}: Controller
+  \item[View] \hfill \\
+  Part of application responsible for generating representation of data in for example HTML \\
+  \textbf{Calls}: Model \\
+  \textbf{Called by}: Controller
+  \item[Controller] \hfill \\
+  Part of application responsible for handling request data, retrieving data from a model(-s), passing that a view(-s) and returning a response \\
+  \textbf{Calls}: Model, View \\
+  \textbf{Called by}: nothing
+\end{description}
+
+This is not possible to implement in Links as it massively differs from it's way of defining application logic and also because MVC is in most cases implemented using object-oriented languages. However this is worth mentioning as a point of reference, since this is the direction the industry is moving towards, although this would require introduction of objects into Links language which would be impractical and likely too difficult.
+
+In MVC architecture, each Controller has a list of \textit{actions} which define handlers in a similar fashion as the ones above in Sintatra example. Because of this layered architecture (\textit{N} controllers have \textit{M} actions), it is possible to access certain parts of functionality without an explicitly defined routing configuration, by just relying on a convention that \textit{/books/view} URL would execute the \textit{view} action in \textit{books} controller. Because of this, MVC architecture allows new functionality to be added quickly, without having to make any other modifications other than adding new actions. Which is also true for Links, as it doesn't require anything else than to create a function.
 
 \section{Type systems and implication}
 

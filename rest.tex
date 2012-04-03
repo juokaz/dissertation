@@ -20,27 +20,7 @@ Even though this is not a requirement of REST style, which allows any URLs as lo
   \item[etc \ldots]
 \end{description}
 
-To support this, different framework handle this differently. MVC architecture would have a routing component which maps a list of routes like above to specific controllers' actions. Actions themselves would handle different HTTP verbs or this would be part of route definition. Sintara framework, similarly to a lot of small web frameworks, solves this problem by directly matching a route and verb combo to a certain handler, which is called assuming that combo is satisfied. Example below shows a Sintara application blueprint which internally just modifies Sinatra's routing list to add new string routes to match against:
-
-\begin{codelisting}
-\begin{verbatim}
-get '/products/:id*' do
-   "Iphone"
-end
-
-post '/products/:id*' do
-   id = params[:id]
-   # Handle update
-end
-
-delete '/products/:id*' do
-   id = params[:id]
-   # Delete delete by id
-end
-\end{verbatim}
-\end{codelisting}
-
-This allows to create new resources really quickly and quite clearly indicates what requests it accepts. PHP as a language doesn't help with this in any way, because of the nature of it being just a script, where Ruby applications are small web-servers by themselves. In case of PHP, a web-server of choice must redirect all requests matching non-files (so images, CSS and JavaScripts can still be accessed) to one handler script which parses the passed route to decide a handler to execute. Most of PHP frameworks do this out of the box, usually by employing a routing mechanism described above and redirection of requests to a handling script is achieved by tools like \textit{mod\_rewrite}[] in Apache.
+As showed in Requests handling section, Sinatra allows to configure these URLs out of the box, and most of PHP frameworks would do the same. Furthermore, out of the box, most MVC come with the URL structure of \textit{/controller/action} which allows to generate better URLs out of the box. The URL would still include keywords like \textit{view} or \textit{edit}, which are not resources themselves but just different representation, however this is still better than a cryptic URL like \textit{index.php?show=product\&id=325}. These sort of URLs would be something a PHP developer starts with and obviously doesn't much much semantic meaning.
 
 Links, however, has no notion of this as it only allows to move between functions in a sense of a Links language level function and because of the fact that it needs to transfer application state to support that, even for simple things, it will generate URLs itself, which have no semantic meaning to a user. Also Links seem to only handle \textit{GET} and \textit{POST} verbs, but also a developer has no control of how they differentiate, only that for forms, they would post the data rather than passing that as part of query, which is not used as that would require encoding the state.
 
@@ -107,3 +87,5 @@ fun lookupUserID(username) server('/users/:username') {
 \end{codelisting}
 
 \subsection{Request access}
+
+
