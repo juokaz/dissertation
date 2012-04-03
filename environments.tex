@@ -3,6 +3,16 @@
 
 \chapter{Comparing environments}
 
+\section{Type systems and implication}
+
+Links is a strongly typed language, thus even if a variable is defined as \textit{var i = 1}, at compile time this would be interpreted as \textit{i} variable having a type of \textit{int} and a value of \textit{5}. Furthermore, functions can have specifications of the types they accept. Both PHP and Ruby on the other hand are greatly different, both using weak-typing. Variable types are not checked in compile type and not necessary even at execution, which might result in unexpected behaviours when two different types are used in for example math operations. Both languages would try to convert to a type would allow that operation, but execution of statements like \textit{"one" + 1} is always unpredictable for a developer.
+
+One of the key ideas behind Links is solving impedance mismatch problem[], which can be briefly described as an issue for a developer when he needs to map different types to and from different languages. Most web applications consist of at least a server-side language, JavaScript and SQL, which all have different type systems. For example all database engines have different date and time types, thus there should be some level of logic which knows how to parse them to be represented in a language-level way. And once a user enters a date in a form, some code should convert that to language-level type which again would have to be converted to a database specific type.
+
+Database types are further discussed in the Database section, but the implication of Links type system and the fact that it itself generates both JavaScript and SQL code, means that a developer only needs to worry about the types he knows, which are language types. Where in PHP one would have to convert a datetime string to a \textit{DateTime} object and then handle that for display purposes, Links would handle that for him. This improves development time vastly and also because it's a compile time check, it means that it's impossible to make a mistake such as storing a \textit{String} type value in \textit{int} column.
+
+However strongly typed languages are not necessary ideal for the web. The problem with the web, is that a developer has no control of what user is doing. When one is presented with a form, he might choose to enter his birthday as a UNIX timestamp, like \textit{1333449313}, and thus type matching would implicitly fail as this is not the datetime type an application was expecting. Obviously this is solvable by a validation stage, but this is much easier in PHP/Ruby as those would gladly accept any value which a developer can check by himself, where in Links the application would just fail to accept it as it doesn't match the definition of the type.
+
 \section{Language architecture}
 
 \section{Requests handling}
@@ -69,7 +79,7 @@ This is not possible to implement in Links as it massively differs from it's way
 
 In MVC architecture, each Controller has a list of \textit{actions} which define handlers in a similar fashion as the ones above in Sintatra example. Because of this layered architecture (\textit{N} controllers have \textit{M} actions), it is possible to access certain parts of functionality without an explicitly defined routing configuration, by just relying on a convention that \textit{/books/view} URL would execute the \textit{view} action in \textit{books} controller. Because of this, MVC architecture allows new functionality to be added quickly, without having to make any other modifications other than adding new actions. Which is also true for Links, as it doesn't require anything else than to create a function.
 
-\section{Type systems and implication}
+\section{State transfer}
 
 \section{Forms}
 
