@@ -15,6 +15,8 @@ However strongly typed languages are not necessary ideal for the web. The proble
 
 \section{Language architecture}
 
+PHP and Ruby are both imperative object-oriented languages, with especially Ruby using objects for everything and even primitives like integers being objects, while Links is a functional language. 
+
 \section{Requests handling}
 
 Links handles HTTP requests very differently from say Ruby or PHP - it makes a developer think as if HTTP was a stateful protocol. So rather than a link point to another script or handler, in Links a link would \textit{point} to a function call, which is parsed by Links parser and an actual URL is generated to support this functionality. The approach of links or forms being pointed to functions rather than external scripts resembles a desktop application, where one process handles state transfers. Here are 3 examples of anchor links in different languages:
