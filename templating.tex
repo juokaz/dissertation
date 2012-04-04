@@ -1,26 +1,102 @@
-%% Sample chapter file, for use in a thesis.
-%% Don't forget to put the \chapter{...} header onto each file.
-
 \chapter{Templating}
 
-First you have to get some dead tissue (the knack here is in also managing to
-avoid a short custodial sentence for grave-robbing). Then you need one of
-those crackling things which makes lots of sparks. The work must also be
-conducted in a suitable dark and ancient castle, in close proximity to a town
-of highly suspicious and pitchfork-wielding peasants.
+Rather than building HTML from scratch for each response, it's common to have a layered structure. For example if an application has 50 pages, 49 of which are various content pages and 1 homepage, they are definitely going to share some HTML markup, be it the \textit{head} section or navigation bar (discussed further below). Focus of templating systems is to make parts of HTML reusable so an application can be built in a way, where changing a layout doesn't require to change application logic itself and has no implications on application flow overall.
 
-\section{How templating is used for web applications}
+Some templating systems support inheritance, filters, inline-code, etc. For example Ruby has Erb, Haml and a few others. However they are too complicated to cover in this report and obviously have no similar solutions in Links, so they are going to be ignored. Focus of this section is to try to see if Links can be made to support templating or layout behaviours and how.
 
 \section{Basic layouts}
 
+Basic concept of a layout, in terms of a web application, is a tree like structure where result of one function is wrapper by a number of other functions, finally resulting in a final \textit{layout()} call. This is done to advocate code reuse, make functions handling specific actions shorter and also make it possible to change design templates without having to change all the application.
+
+In terms of a programming language, a HTML layout is just a string containing one or more place-holders, which get replaced with a result from a previous layout. Thus there are multiple levels of layout, any of which can be changed separately and affecting more or less full pages. 
+
 \section{Widgets}
+
+There are a few parts of HTML which ideally should be delegated to other functions as doing everything in one big layout can again become harder to manage. Thus a concept of widget was introduced, with a widget just being a small part of big layout, doing or showing a specific feature and not interacting with a layout itself. A good example of this would be sidebar calendar, navigation, search form and other non-vital application parts. These tend to be implemented as small functions and then placed in a full layout.
 
 \section{Implementing in Links}
 
-\section{Templating frameworks in modern frameworks}
+Links is a functional language, which makes it impossible to have a global layout like for example Sintara does. In Sintara, a global variable called \textit{layout} can be defined (containing a string of HTML) making application core to use it as a final step to render HTML output. In Links however this could be achieved by providing a function which takes a partial content and returns whole page. It's really surprising that none of the examples provided by Links documentation are using this and therefore are promoting code-dublication. Starting from a sign up form like this:
 
-\subsection{Inheritance}
+\begin{codelisting}
+\begin{verbatim}
+fun sign_up_form(order_id) {
+ page
+  <html> 
+    <head> <link href="wine.css" rel="StyleSheet"/> </head>
+    <form l:action="{sign_up(order_id, username, password)}">
+      <table>
+        <tr><td>
+          Username:</td><td> <input type="text" l:name="username" />
+        </td></tr>
+        <tr><td>
+          Password:</td><td> <input type="password" l:name="password" />
+        </td></tr>
+        <tr><td>
+          </td><td> <input type="submit" value="Sign Up" />
+        </td></tr>
+      </table>
+    </form>
+  </html>
+}
+\end{verbatim}
+\end{codelisting}
 
-\subsection{Helpers}
+This could be modified to a different flow, where rather than returning straight from \textit{sing\_up\_form} function, it first filters the result it generated through a layout function:
 
-\subsection{Implementation in Links}
+\begin{codelisting}
+\begin{verbatim}
+fun layout(partial) {
+  <html> 
+    <head> <link href="wine.css" rel="StyleSheet"/> </head>
+    <body>
+      {partial}
+    </body>
+  </html> 	
+}
+
+fun sign_up_form(order_id) {
+ page layout(
+    <form l:action="{sign_up(order_id, username, password)}">
+      <table>
+        <tr><td>
+          Username:</td><td> <input type="text" l:name="username" />
+        </td></tr>
+        <tr><td>
+          Password:</td><td> <input type="password" l:name="password" />
+        </td></tr>
+        <tr><td>
+          </td><td> <input type="submit" value="Sign Up" />
+        </td></tr>
+      </table>
+    </form>
+  )
+}
+\end{verbatim}
+\end{codelisting}
+
+Once this is done, any page can call this function to wrap its generated content in full markup. Furthermore, introducing widgets becomes easy too, as now the layout function can construct any part of the global layout, so add a navigation bar the code could be changed to this:
+
+\begin{codelisting}
+\begin{verbatim}
+fun layout(partial) {
+  <html> 
+    <head> <link href="wine.css" rel="StyleSheet"/> </head>
+    <body>
+      {navigation()}
+      {partial}
+    </body>
+  </html> 	
+}
+
+fun navigation() {
+  <ul>
+   <li>Home</li>
+   <li>Store</li>
+   <li>Cart</li>
+  </ul>
+}
+\end{verbatim}
+\end{codelisting}
+
+After introducing this way of defining layouts and widgets, Links becomes much more easier to use and faster to develop in. Some of the functionality like inheritance is hardly achievable as that would require a complete templating system to be implemented, but for the basic tree-based layouting systems with widgets this works really well. Also because HTML is part of inline language code, the code is easy to follow and manage.
