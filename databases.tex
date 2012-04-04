@@ -22,17 +22,72 @@ var posts = table "posts" with (
 \end{verbatim}
 \end{codelisting}
 
-sacscaasc
-
-Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
-
-Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
-
 \section{Handling databases in modern frameworks}
 
 \subsection{Ruby}
 
+It's quite common in Ruby wep applications to use active record[] pattern based database access, which is one example of an ORM, as provided by a library called \textit{active\_record}. Models are defined as classes extending a base ORM record class, thus giving access to saving and retrieving data from a database in OOP way. Furthermore, by defining a schema for a specific table, this library can also generate a database scheme and then once the application is launched that would be executed in a current connection. This makes managing databases much easier and allows a developer to focus on application logic and let \textit{active\_record} handle the database.
+
+\begin{codelisting}
+\begin{verbatim}
+require 'active_record'
+
+ActiveRecord::Base.establish_connection(
+    :adapter  => "mysql",
+    :host     => "localhost",
+    :username => "root",
+    :password => "root",
+    :database => "blog"
+)
+
+begin
+  ActiveRecord::Schema.define do
+    create_table :posts do |t|
+      t.string :title
+      t.text :summary
+      t.text :text
+    end
+  end
+rescue ActiveRecord::StatementInvalid
+end
+
+class Post < ActiveRecord::Base
+  has_many :comments
+  def permalink; "/posts/#{to_param}"; end
+end
+\end{verbatim}
+\end{codelisting}
+
+Example above defines a sample posts schema definition and a model using it, base model classes reads table definition from a database and add those properties to otherwise empty \textit{Post} model. Similarly to Links, this library allows to define data structures in language types, rather than database types and then handles type conversion for input and output itself. Rather than manually executing SQL, \textit{active\_record} allows to access data using query generation methods, which are again database server agnostic, like this:
+
+\begin{codelisting}
+\begin{verbatim}
+Post.find(:all, :limit => 20, :order => "id DESC").each do |p|
+   # handle each p (post)
+end
+\end{verbatim}
+\end{codelisting}
+
+This looks quite similar to how Links would solve this problem, however Links doesn't provide any way to modify the query, it only allows to iterate over tables and then creates queries itself. This is further discussed below as clearly there are problems with Links approach. 
+
 \subsection{PHP}
+
+PHP developers tend to use databases in a quite low-level way - rather that using an ORM or any SQL generator, it's really common to just handle SQL in application level and read data as it is. Obviously there exists ORMs for PHP too, some of them being at the level of Ruby's \textit{active\_record} , but it seems that PHP developers are just more used to handling databases at the lowest level possible. This makes it really easy to execution any behaviour and obviously optimize if an application becomes slow as there is no external code generating database interactions.
+
+\begin{codelisting}
+\begin{verbatim}
+$db = mysql_connect('localhost', 'root', 'root');
+mysql_select_db('blog');
+
+$result = mysql_query("SELECT * FROM posts ORDER BY id DESC LIMIT 0,10");
+
+foreach (mysql_fetch_assoc($result) as $post) {
+  // handle each $post
+}
+\end{verbatim}
+\end{codelisting}
+
+Code above is really self-explanatory, once a connection is established, a simple SQL query is executed resulting in a MySQL resource. That resource in this case is fetch as an associative array, however it can also be fetched, or rather converted, as objects or singular values/rows. However this code is database server specific, only working with MySQL servers. PHP has PDO[] abstraction layer, which allows to use the same code to connect to different types of servers, however it doesn't try to generate SQL queries, thus it isn't a direct replacement for an ORM.
 
 \section{Shortcomings of ORMs}
 
@@ -58,7 +113,15 @@ var ov milestone =
 
 This code would generate one SQL query to fetch all posts by a user and then as many queries to fetch comments as there are posts. This can be best described as lazy-loading[], however in this case it's high suboptimal. Performance hit, assuming there are only so many blog posts would not be noticeable, but if a user has 1000 blog posts then fetching comments would require 1001 queries, which is a substantial amount of number, resulting in bad performance of an application. It's surprising that Links doesn't analyse code further than one \textit{for} block, because by looking ahead and realizing that other \textit{for} generators are also reading from database tables', it would be able to create one SQL query by utilizing JOINs. 
 
-Developer is left with no other choice than to either change database structure by avoiding multiple-level generators, which is achieved by de-normalizing[] the data. However, this would return in higher database size and also would require more preparation upfront. Furthermore, if in a long run a performance problem surfaces, it's currently impossible to override a generated SQL query, thus Links is not suitable for applications with big amount of data or complicated data structures as those will make the application too slow to be production-ready.
+Developer is left with no other choice than to either change database structure by avoiding multiple-level generators, which is achieved by de-normalizing[] the data. However, this would return in higher database size and also would require more preparation upfront. Furthermore, if in a long run a performance problem surfaces, it's currently impossible to override a generated SQL query, thus Links is not suitable for applications with big amount of data or complicated data structures as those will make the application too slow to be production-ready. For example Ruby applications allow joins as easily as:
+
+\begin{codelisting}
+\begin{verbatim}
+Post.join(:comments).each do |p|
+   # handle each p (post)
+end
+\end{verbatim}
+\end{codelisting}
 
 \section{NoSQL databases}
 
