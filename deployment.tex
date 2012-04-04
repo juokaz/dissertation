@@ -10,18 +10,32 @@ Links comes with an \textit{INSTALL} file which throughoutly describes the whole
 Version 0.5 of Links must be compiled with OCaml version 3.10 as there is a regression in the camlp4 tool shipped with later versions of OCaml. The latest version of Links in the Subversion repository includes a workaround for the camlp4 regression. It compiles with OCaml version 3.12, but probably won't compile with earlier versions.
 \end{quote}
 
-Setting up Ruby or PHP on any modern OS is as easy as installing a web server and the runtime, which are distributed as install packages. A developer doesn't have to compile it manually, thus it's much more easier for a starting developer to become familiar with a language easily, avoiding spending time trying to get the runtime working.
+Currently both PHP and Ruby come with tools to create a web server out of an application folder itself, running \textit{ruby -rubygems blog.rb} creates a web server running on a port 4567 by default and allows to interact with an application without having to setup a web server. This is not something developers are using for production environments, but locally and especially for testing, it makes it much more easier to launch applications. Usually a web server is setup to host a specific type of application, for example PHP from a folder \textit{/var/www/} so obviously running Ruby applications means changing web server settings. With a local web server running as part of application, this step is removed. 
+
+Setting up Ruby or PHP on any modern OS is as easy as installing a web server and the runtime, which are distributed as install packages. A developer doesn't have to compile it manually, thus it's much more easier for a starting developer to become familiar with a language easily, avoiding spending time trying to get the runtime working. Some distributions like Ubuntu already come with PHP, Apache and MySQL setup, so it's as easy as creating a \textit{index.php} file to start playing with PHP language.
 
 \section{How applications are deployed}
 
-\subsection{PHP}
-
 PHP grew to become the most popular language for web applications because of how easy it's to develop applications and deploy them. At the time when PHP was born, only Perl was used heavily for applications and it required quite a lot of work to get working. PHP came with \textit{mod\_php} Apache module which allow placing any PHP files in web servers' web root and have them served to. A web server doesn't have to be restarted when new files are added or modified, it just starts serving them immediately. Since then other languages have come up with their own similar solutions, still PHP leads the ease of deployment.
 
-Deploying PHP applications was always done just by uploading new files over FTP, however now developers are moving towards more automated tools like build scripts. 
+Deploying PHP applications was always done just by uploading new files over FTP, however now developers are moving towards more automated tools like build scripts. Tools like Ping\citep{phing} allow to automate this process to achieve deployments in one single command. But the underlying simplicity of deploying PHP scripts still remain, because they almost never depend on environment settings, apart from PHP configuration and version itself, this works really well. However Phing or any other build system doesn't come with pre-made PHP apps deployment process, thus a developer needs to spend time scripting it. Nonetheless, most shared servers provide FTP access to upload application files and do not require anything else.
 
-\subsection{Ruby}
+Similarly to PHP, usually Ruby applications are deployed to a server running \textit{mod\_rails} which manages running Ruby applications and picks up new files as they are uploaded. Capistrano is a deployments management system written in Ruby specifically for deploying web applications. Deploying a Sinatra or Ruby on Rails application with these tools is as easy as creating a configuration file with server settings and running it. It knows enough about Ruby applications to set them up on a server and have them running. Because Ruby applications quite heavily installed on extensions called \textit{gems}, Capistrano installs them on a server depending on a configuration file provided with an application.
 
 \section{Deploying Links applications}
 
+Links applications can run as \textit{cgi-bin} scripts, thus deploying them is as easy as PHP or Ruby. Furthermore, database settings can be stored in an external file out of the box, so a developer can have different settings for his local environment and production by storing production database settings on a server and only updating the application code. Other languages' frameworks have this too, but might require more work to get working, for example Sinatra doesn't come with a configuration file component thus needing to do this manually. 
+
+Even though deploying Links applications is as easy as any other language, the chosen web server communication mechanism doesn't scale well. PHP used to be \textit{cgi-bin} based also, however it moved to \textit{mod\_php} and \textit{FastCGI} years ago as \textit{cgi-bin} wasn't fast and stable enough. Every new request, when running \textit{cgi-bin}, creates a new process to handle it. This is quite an expensive operation and limits web server performance and eventually can make it exhaust the CPU. 
+
 \section{Improving deployment}
+
+First of all, to make both deployment and local setup easier, Links should have a simplified setup mode, which would not require compiling from source and arrive to OCaml bugs. This would greatly reduce the entry barrier and make it more approachable by starting developers. Also setting up new servers would be much easier. Providing .deb or .rpm packages for most common distributions would be ideal, as then install installing Links would be as easy as:
+
+\begin{codelisting}
+\begin{verbatim}
+sudo dpkg -i links-0.5-svn.deb
+\end{verbatim}
+\end{codelisting}
+
+Focusing on performance might not be a primary goal of Links, however it is expected that if it wants to catch up with other languages eventually, its performance and web server integration has to be improved. 
