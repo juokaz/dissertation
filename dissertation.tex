@@ -57,7 +57,7 @@
 
 %% Put any \usepackage commands you want to use right here; the following is 
 %% an example:
-\usepackage{natbib}
+\usepackage[numbers]{natbib}
 
 \newenvironment{codelisting}
 {\begin{list}{}{\setlength{\leftmargin}{1em}}\item\scriptsize\bfseries}
@@ -80,8 +80,7 @@
 
 %% Specify the abstract here.
 \abstract{%
-    This doctoral thesis will present the results of my work into the
-    reanimation of lifeless human tissues.
+    This report presents an evaluation of Links, a functional language for web programming combining HTML, JavaScript and SQL handling under one language. A few sample applications were created and language syntax was studied to compare it against two other very popular languages used for web programming - Ruby and PHP. Links behaved very different from the other two, really shining in form handling and ability to implement templating, however it's state handling mechanism while allowing multi-browser browsing more easily, was found to be breaking the overall usability of a language because it would generate unpredictable and unchangeable URLs. Furthermore, database abstraction was easier to use than especially PHP, but lacked features and performance. Most disappointingly, it didn't allow any key RESTful behaviours, thus in the end making it not suitable for developing cutting-edge applications.
 }
 
 %% Now we start with the actual document.
@@ -137,7 +136,7 @@
 % \singlespace
 
 %% Specify the bibliography file. Default is thesis.bib.
-\bibliography{dissertation}
+\bibliography{references}
 
 %% ... that's all, folks!
 \end{document}
