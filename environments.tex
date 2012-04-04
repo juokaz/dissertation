@@ -115,4 +115,46 @@ Even though there are problems with Links approach, it scales better for distrib
 
 \section{Forms}
 
-\section{Missing features of Links}
+One of the most interesting features of Links is form handling. Some of the behaviours of Links are also available in Ruby and PHP frameworks, but they work slightly differently, especially since they do not have strongly typed variables, where in Links a formlet would yield an exact type it was asked to. For example by defining a form like this, it would finally return an \textit{Itinerary}-tagged value with two dates inside it:
+
+\begin{codelisting}
+\begin{verbatim}
+fun dateFormlet(msg) {
+  formlet <#>
+    {stringToXml(msg)} <br />
+    Day:   {inputInt -> day}
+    Month: {inputInt -> month}
+    Year:  {inputInt -> year}
+  </#>
+  yields {
+    Date(day, month, year)
+  }
+}
+
+formlet
+  <table>
+  <tr><td>
+    {dateFormlet("Arrival") -> arrival}
+  </td><td>
+    {dateFormlet("Departure") -> departure}
+  </td></tr>
+  </table>
+yields
+  Itinerary(arrival, departure)
+\end{verbatim}
+\end{codelisting}
+
+When forms need to be handled, their values are automatically passed to a function as arguments. This step alone in say PHP would take building a separate page handling the form and then redirect back to a success page. However with Links it's expressed simply like this:
+
+\begin{codelisting}
+\begin{verbatim}
+<form l:action="{search(query)}">
+  <input type="text" l:name="query" />
+  <input type="submit" value="Search" />
+</form>
+\end{verbatim}
+\end{codelisting}
+
+In this case a formlet is not used for a sake of simplicity, however it could be generating the same form layout too. Combined with \textit{sendSuspend} which allows to branch out from a flow to serve a page required to be completed, for example a login page before an order is displayed, forms become a natural part of an application, rather than like in other languages just a piece of HTML sending the request to another page to handle it.
+
+Because Links functions accept to be configured to work either server side or client side, building forms in Links is far better than in any other framework or language as it allows to use the same code to build a form and then switch it to be working using AJAX, without having to recode the HTML markup, JavaScript or any other part of the application. This makes going from basic behaviours to rich user interfaces, as part of Web 2.0, really easy. 
