@@ -2,6 +2,44 @@
 
 \section{What is REST}
 
+Big part of modern applications' requirements is how RESTful they are. REST[], REpresentational State Transfer, was defined in 2000 by Roy Fielding, as a style of application architecture bound by these constraints:
+
+\begin{description}
+  \item[Client–server] A uniform interface separates clients from servers, clients are not concerned with data storage and servers are not concerned with the user interface or user state, so that servers can be simpler and more scalable
+  \item[Stateless] No client context is being stored on the server between requests. Each request from any client contains all of the information necessary to service the request, and any session state is held in the client
+  \item[Cacheable] Clients can cache responses. Responses must therefore, implicitly or explicitly, define themselves as cacheable, or not, to prevent clients reusing stale or inappropriate data in response to further requests
+  \item[Layered system] A client cannot ordinarily tell whether it is connected directly to the end server, or to an intermediary along the way
+  \item[Code on demand (optional)] Servers are able temporarily to extend or customize the functionality of a client by the transfer of executable code
+  \item[Uniform interface] The uniform interface between clients and servers simplifies and decouples the architecture, which enables each part to evolve independently
+\end{description}
+
+When a web application is called RESTful, it has a certain amount of resources, all identified by a global identifier, which can be manipulated over a standardized interface, and exchange representations of them in a format accepted by a client, assuming there exists one. Even though REST style doesn't define this as being HTTP-only, for our purposes, let's assume that all definitions below, are related to HTTP, the protocol web applications talk in. Web application resources would be identified by their URIs, the interface allowing to manipulate them is obviously HTTP and representations would come as different text types.
+
+It thus expected that an interface would behave like this:
+
+\begin{codelisting}
+\begin{verbatim}
+$ curl -H "Accept: application/json" -X POST -d "name=iphone&title=Iphone5" http://localhost/products
+{'name':'Iphone5', 'location': 'http://localhost/products/iphone'}
+
+$ curl -H "Accept:application/html" http://localhost/products/iphone
+<html><body>Iphone5</body></html>
+
+$ curl -H "Accept:application/xml" http://localhost/products/iphone
+<product><name>Iphone5</name></product>
+
+$ curl -H "Accept:application/json" http://localhost/products/iphone
+{'name':'Iphone5'}
+
+$ curl -H "Accept:text/plain"localhost/products/iphone
+Iphone5
+\end{verbatim}
+\end{codelisting}
+
+Even though a usual web application in most cases is just a website, thus it has only representation - HTML - I would expect a modern web application framework or a language to support RESTfullness, as it solves quite a lot of problems in current web state. First of all, it allows any website to become machine readable easily, just by exchanging a different representation, say XML, than the one returned to browsers. Second, the way it defines constrains for cacheability, statelessness and layered systems transparency, it makes web applications scale better, both in terms of development speed and ease and also performance. 
+
+Most importantly, I think Hypermedia[] is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
+
 \section{URL structures}
 
 Even though this is not a requirement of REST style, which allows any URLs as long as they are Unique IDentifiers (UIDs), usually RESTful web applications expose resources in a manner which is easy for humans to understand. This is achieved by creating an \textit{illusion} that there is a folder structure in the application, which can be navigated upwards or downwards to retrieve parent/child elements. Obviously they are rarely real folders and files, but all requests are caught by a web server and passed to a handling script, which would then parse them and figure out how to handle it. An example structure might look like this:
@@ -64,8 +102,6 @@ Because of Links model of handling requests, this is also not supported. Althoug
 
 As per report goals, Links cannot be used for RESTful applications, which is a big drawback given that most of other languages support this. Even though the changes required to support this would be core language changes, I think this is necessary to make the language ready for modern applications. 
 
-\subsection{URL generation}
-
 The goal of this modification is to gain functionality of being able to modify URLs Links generates for server-side function calls. It could still generate encrypted URLs for functions which do not explicitly define the URL format, but for those who do, it should use that as a template. A template should have as much parameters as function definition, so it could be type-checked and also URLs generated from it. For example, a proposed syntax would look like this:
 
 \begin{codelisting}
@@ -87,7 +123,3 @@ fun lookupUserID(username) server('/users/:username') {
 # lookupUserId('juozas') -> /users/juozas
 \end{verbatim}
 \end{codelisting}
-
-\subsection{Request access}
-
-

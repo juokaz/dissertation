@@ -26,46 +26,6 @@ Ruby is also an old language, used heavily for scripting, however it rose as web
 
 Both Ruby and PHP are really different languages from Links, thus the analysis of them and how that affects development of web applications, is included in one of the sections of this report. 
 
-\section{Web and REST}
-
-Big part of modern applications' requirements is how RESTful they are. REST[], REpresentational State Transfer, was defined in 2000 by Roy Fielding, as a style of application architecture bound by these constraints:
-
-\begin{description}
-  \item[Client–server] A uniform interface separates clients from servers, clients are not concerned with data storage and servers are not concerned with the user interface or user state, so that servers can be simpler and more scalable
-  \item[Stateless] No client context is being stored on the server between requests. Each request from any client contains all of the information necessary to service the request, and any session state is held in the client
-  \item[Cacheable] Clients can cache responses. Responses must therefore, implicitly or explicitly, define themselves as cacheable, or not, to prevent clients reusing stale or inappropriate data in response to further requests
-  \item[Layered system] A client cannot ordinarily tell whether it is connected directly to the end server, or to an intermediary along the way
-  \item[Code on demand (optional)] Servers are able temporarily to extend or customize the functionality of a client by the transfer of executable code
-  \item[Uniform interface] The uniform interface between clients and servers simplifies and decouples the architecture, which enables each part to evolve independently
-\end{description}
-
-When a web application is called RESTful, it has a certain amount of resources, all identified by a global identifier, which can be manipulated over a standardized interface, and exchange representations of them in a format accepted by a client, assuming there exists one. Even though REST style doesn't define this as being HTTP-only, for our purposes, let's assume that all definitions below, are related to HTTP, the protocol web applications talk in. Web application resources would be identified by their URIs, the interface allowing to manipulate them is obviously HTTP and representations would come as different text types.
-
-It thus expected that an interface would behave like this:
-
-\begin{codelisting}
-\begin{verbatim}
-$ curl -H "Accept: application/json" -X POST -d "name=iphone&title=Iphone5" http://localhost/products
-{'name':'Iphone5', 'location': 'http://localhost/products/iphone'}
-
-$ curl -H "Accept:application/html" http://localhost/products/iphone
-<html><body>Iphone5</body></html>
-
-$ curl -H "Accept:application/xml" http://localhost/products/iphone
-<product><name>Iphone5</name></product>
-
-$ curl -H "Accept:application/json" http://localhost/products/iphone
-{'name':'Iphone5'}
-
-$ curl -H "Accept:text/plain"localhost/products/iphone
-Iphone5
-\end{verbatim}
-\end{codelisting}
-
-Even though a usual web application in most cases is just a website, thus it has only representation - HTML - I would expect a modern web application framework or a language to support RESTfullness, as it solves quite a lot of problems in current web state. First of all, it allows any website to become machine readable easily, just by exchanging a different representation, say XML, than the one returned to browsers. Second, the way it defines constrains for cacheability, statelessness and layered systems transparency, it makes web applications scale better, both in terms of development speed and ease and also performance. 
-
-Most importantly, I think Hypermedia[] is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
-
 \section{Report Aims}
 
 This report evaluates Links against to other languages, PHP and Ruby, to asses how usable it is for creating modern web applications. When Links is not capable of doing a certain task, it is evaluated on how difficult and challenging it would be to implement that, assuming that inclusion would be relevant to the goals Links is trying to achieve. With some of the ideas briefly explained above, a list of topics to be analysed in is this:
