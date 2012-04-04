@@ -1,19 +1,24 @@
-%% Sample chapter file, for use in a thesis.
-%% Don't forget to put the \chapter{...} header onto each file.
-
 \chapter{Deployment}
 
-First you have to get some dead tissue (the knack here is in also managing to
-avoid a short custodial sentence for grave-robbing). Then you need one of
-those crackling things which makes lots of sparks. The work must also be
-conducted in a suitable dark and ancient castle, in close proximity to a town
-of highly suspicious and pitchfork-wielding peasants.
+Modern demands require applications to be deployed quickly and without having to wait for long times to see the results. This allows quick turn-around times and also makes it possible to update web applications as often as needed. This is the reason why for example Java is rarely used for anything other than enterprise web applications, is because it takes a substantial amount of time to compile it and then distribute the executable, while some of the languages from this report are as easily deployable as uploading a file.
 
 \section{Local env setup}
+
+Links comes with an \textit{INSTALL} file which throughoutly describes the whole installation process, however from my tests it seem to be quite a fragile process and took hours to get right on a default Linux installation. Especially compiling support for database platforms seem to be really feedback-less process and would not tell why exactly is it failing. Eventually Links was running, but there seem to be issues with OCaml and as the official website states: 
+
+\begin{quote}
+Version 0.5 of Links must be compiled with OCaml version 3.10 as there is a regression in the camlp4 tool shipped with later versions of OCaml. The latest version of Links in the Subversion repository includes a workaround for the camlp4 regression. It compiles with OCaml version 3.12, but probably won't compile with earlier versions.
+\end{quote}
+
+Setting up Ruby or PHP on any modern OS is as easy as installing a web server and the runtime, which are distributed as install packages. A developer doesn't have to compile it manually, thus it's much more easier for a starting developer to become familiar with a language easily, avoiding spending time trying to get the runtime working.
 
 \section{How applications are deployed}
 
 \subsection{PHP}
+
+PHP grew to become the most popular language for web applications because of how easy it's to develop applications and deploy them. At the time when PHP was born, only Perl was used heavily for applications and it required quite a lot of work to get working. PHP came with \textit{mod\_php} Apache module which allow placing any PHP files in web servers' web root and have them served to. A web server doesn't have to be restarted when new files are added or modified, it just starts serving them immediately. Since then other languages have come up with their own similar solutions, still PHP leads the ease of deployment.
+
+Deploying PHP applications was always done just by uploading new files over FTP, however now developers are moving towards more automated tools like build scripts. 
 
 \subsection{Ruby}
 
