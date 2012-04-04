@@ -2,7 +2,7 @@
 
 \section{What is REST}
 
-Big part of modern applications' requirements is how RESTful they are. REST[], REpresentational State Transfer, was defined in 2000 by Roy Fielding, as a style of application architecture bound by these constraints:
+Big part of modern applications' requirements is how RESTful they are. REST\citep{rest}, REpresentational State Transfer, was defined in 2000 by Roy Fielding, as a style of application architecture bound by these constraints:
 
 \begin{description}
   \item[Client–server] A uniform interface separates clients from servers, clients are not concerned with data storage and servers are not concerned with the user interface or user state, so that servers can be simpler and more scalable
@@ -38,7 +38,7 @@ Iphone5
 
 Even though a usual web application in most cases is just a website, thus it has only representation - HTML - I would expect a modern web application framework or a language to support RESTfullness, as it solves quite a lot of problems in current web state. First of all, it allows any website to become machine readable easily, just by exchanging a different representation, say XML, than the one returned to browsers. Second, the way it defines constrains for cacheability, statelessness and layered systems transparency, it makes web applications scale better, both in terms of development speed and ease and also performance. 
 
-Most importantly, I think Hypermedia[] is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
+Most importantly, I think Hypermedia\citep{rest} is crucial part of web as a whole, and for it to evolve for years to come, all web endpoints, being simple websites or machine consumable APIs, have to support it. It is not a big requirement for a certain web framework or a language, there are only two things it needs to do well - allow to expose resources identifiable by unique IDs, which should be predictable and reliable, and handle different response types, not just HTML. 
 
 \section{URL structures}
 
@@ -68,7 +68,7 @@ Although the biggest shortcoming of Links is that it doesn't produce determinist
 
 \section{Hypermedia}
 
-Part of support Hypermedia and thus HATEOAS[] is being able to handle different response representation types depending on what user is requesting for. When an application has this, any resource can be accessed by a human user and machine reading software just by using different representations. The important fact here is that resources should always stay the same and only their representations should differ, thus application can evolve and gain various other advantages[]. To support this behaviour, a modified Sintara example would look this (\textit{nakogiri} is a Ruby library which handles Xml parsing and generation, for purposes of this report it is not important how it behaves):
+Part of support Hypermedia and thus HATEOAS\citep{rest} is being able to handle different response representation types depending on what user is requesting for. When an application has this, any resource can be accessed by a human user and machine reading software just by using different representations. The important fact here is that resources should always stay the same and only their representations should differ, thus application can evolve and gain various other advantages. To support this behaviour, a modified Sintara example would look this (\textit{nakogiri} is a Ruby library which handles Xml parsing and generation, for purposes of this report it is not important how it behaves):
 
 \begin{codelisting}
 \begin{verbatim}
@@ -78,7 +78,7 @@ get '/products/:id*' do
   request.accept.each do |type|
     case type
     when 'text/html'
-      halt erb "<h1>#{data.id}</h1>"
+      halt erb "<h1>#{data.id}</h1>"a
     when 'text/json'
       halt data.to_json
     when 'application/atom+xml'
