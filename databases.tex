@@ -7,7 +7,7 @@ It's very unusual for a modern web application to be running without a database 
 
 \section{Databases in Links}
 
-Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables. For example to define a blog database and posts' table, one would use code like this:
+Databases functionality is one of the core features of Links language. It is implemented and uses language-level constructs to define databases and tables, which then can be queried as if they were local lists of data, differently from other environments where SQL queries have to be written manually. For example to define a blog database and posts' table, one would use code like this:
 
 \begin{codelisting}
 \begin{verbatim}
@@ -21,6 +21,20 @@ var posts = table "posts" with (
 ) from db;
 \end{verbatim}
 \end{codelisting}
+
+Querying data is exposed through a special "\textit{\textless- -}" operator, as "\textit{\textless-}" requires a list (it's possible to convert table handler to a list by using \textit{asList()} method, but then all the data filtering would in application code rather than in a database server, potentially requiring to read millions of rows to memory), used mainly in for loops. This dynamically generates a SQL query to retrieve required records. Each record is returned as a string-indexed tuple, which are strongly typed from definitions of tables. To retrieve all records from \textit{posts} table a developer would have to have something like this:
+
+\begin{codelisting}
+\begin{verbatim}
+for (var post <−− posts)
+    # post.id, post.title, etc.
+    [post];
+\end{verbatim}
+\end{codelisting}
+
+This makes Links much more easier to use for a developer who is not familiar with databases, because then he doesn't need to know how to construct a specific SQL query to retrieve this. Because these queries are generated in compile time, Links compiler can optimize them specifically for a used database server, although it's unclear how many of this is being done. At least adding \textit{where} clauses don't make filtering in application scope, but rather modify the SQL query, thus it's more efficient than what would be a trivial approach.
+
+Second, because SQL queries are not constructed by a developer, they are much harder to be exploitable by SQL injection[] attacks, which are briefly attacks where a parameter to be used in a query, for example a username, is given as a portion of SQL query, which if used without checking rewrites the main SQL query to do different things than originally planned. There is no direct manipulation of SQL and Links knows how to insert \textit{where} parameters without allowing a SQL query to be rewritten. This makes application much more secure out of the box than most languages and also protects new developers from creating back-doors without realising this. 
 
 \section{Handling databases in modern frameworks}
 
@@ -68,7 +82,9 @@ end
 \end{verbatim}
 \end{codelisting}
 
-This looks quite similar to how Links would solve this problem, however Links doesn't provide any way to modify the query, it only allows to iterate over tables and then creates queries itself. This is further discussed below as clearly there are problems with Links approach. 
+This looks quite similar to how Links would solve this problem, however Links doesn't provide any way to modify the query, it only allows to iterate over tables and then creates queries itself. \textit{active\_record} also allows to then access internal relationships, without having to explicitly query for them, with code like \textit{    pcomments.each}. Obviously if a join didn't happen before, this library will have to execute additional SQL query(-ies) on a fly, but it allows to add join to queries really easily, differently from how Links works.
+
+Active Record is known to be memory heavy and relatively slow as there is a substantial overhead with instantiating model instances for every single of a table, especially with model classes being quite complex because of the logic they extend. Some developers also argue that databases should not be treated as something what could be directly mapped on native language types and SQL is the right way to talk to them. This discussion has fair points, however Ruby frameworks allow to create applications really fast and optimize them if they become slow, bringing the best from both worlds.
 
 \subsection{PHP}
 
@@ -89,11 +105,29 @@ foreach (mysql_fetch_assoc($result) as $post) {
 
 Code above is really self-explanatory, once a connection is established, a simple SQL query is executed resulting in a MySQL resource. That resource in this case is fetch as an associative array, however it can also be fetched, or rather converted, as objects or singular values/rows. However this code is database server specific, only working with MySQL servers. PHP has PDO[] abstraction layer, which allows to use the same code to connect to different types of servers, however it doesn't try to generate SQL queries, thus it isn't a direct replacement for an ORM.
 
-\section{Shortcomings of ORMs}
+It's really common for a newcomer to PHP to create insecure applications, because they tend to be not aware about SQL Injection. Because the language doesn't aid in any way, an application which is fully open for a hacker to manipulate is easy to create. Modifying the example above, adding support for search (finding blog posts containing the required string in their titles) can be implemented like this:
+
+\begin{codelisting}
+\begin{verbatim}
+$db = mysql_connect('localhost', 'root', 'root');
+mysql_select_db('blog');
+
+$search = $_GET['search'];
+$result = mysql_query("SELECT * FROM posts WHERE tile LIKE '%{$search}%' ORDER BY id DESC LIMIT 0,10");
+
+foreach (mysql_fetch_assoc($result) as $post) {
+  // handle each $post
+}
+\end{verbatim}
+\end{codelisting}
+
+If this script is requested with "\textit{search=\%` OR 1=1 OR title LIKE `\%}", SQL executed is \textit{SELECT * FROM posts WHERE tile LIKE `\%\%` OR 1=1 OR title LIKE `\%\%` ORDER BY id DESC LIMIT 0,10}, thus an attacker can successfully request any data from the table or do many more tasks, even deleting databases or data. It's not uncommon for PHP to receive a lot of criticism for this, because even though it provides methods to escape external data to be used in SQL queries, a lot of examples in documentation, books and online examples do not use it. Nor use prepared statements which would avoid this problem altogether.
 
 \section{Shortcomings of Links}
 
 Even though databases and tables are defined in an abstract way, which looks really similar to how ORMs would define them, however it's only a one-way definition. Thus meaning that data can be read from a database and mapped to language types, but those definitions cannot be used to manage the database structure itself. This is something which makes it more likely to be prone to errors when a certain database is out of sync with the application definitions for it. Developer is hence required to make sure that every time he changes the database or application, he updates the other one. Theoretically this is not a big problem, however practically, with development team bigger than one developer and with multiple servers being used for development and production, it can become tricky to manage this. 
+
+From Links documentation it was impossible to decide whether Links supports Unicode (for example UTF-8) databases and if it does, how. Every major website is now using UTF-8 to represent HTML in as with global internet accessibility, content might be coming from various different languages. Databases are then used with a Unicode type columns or as a global setting for a database itself, for example MySQL supports \textit{utf8\_general\_ci} column charset type which makes it store and handle Unicode data. Both PHP and Ruby extensions handle this by default and this something Links has to be doing if it is to be used for modern applications.
 
 \subsection{Slow-SQL generation}
 
@@ -198,5 +232,19 @@ As seen, this really closely matches with how CouchDB would accept a MapReduce d
 
 \section{Links improvements}
 
-Query construct
-Database generation
+Links is not practical to use for modern application as it's current stage, as it provides a very limited control of generated SQL. Without that an application cannot be optimized thus it can only handle small amounts of data or low traffic. Even though this might be fine for playground applications, trying to implement something more complicated would result in a massive slow application. Thus additional support for \textit{JOIN} hints could be added and it might look something like this:
+
+\begin{codelisting}
+\begin{verbatim}
+var current_user = 1;
+var ov milestone =
+  for (var post <−− posts)
+    where (post.userid == current_user)
+    join (comments)
+      for (var comment <−− comments)
+        where (comment.postid == post.id)
+          [(user=comment.userid, text=comment.text)];
+\end{verbatim}
+\end{codelisting}
+
+It's now explicitly defined that a join must used, thus a compiler should be able to figure out the two tables to be joined and conditions they have. Adding support for arbitrary SQL queries in a string form doesn't seem to be possible as it would be complicated to strongly-type their results, either requiring to specific that as a list of types or otherwise Links would not be able to handle it.
